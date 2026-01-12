@@ -1,5 +1,13 @@
+
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
+
+
+#define KEYBOARD_DATA_PORT 0x60
+#define KEYBOARD_STATUS_PORT 0x64
+
+
+extern "C" unsigned char inb(unsigned short port);
 
 
 class Terminal{
@@ -47,15 +55,14 @@ class Terminal{
 };
 
 
-
+Terminal ter;
+void keyboard_driver_write();
 
 extern "C" void kernel_main() {
     // Pointer to the VGA text buffer
  //   unsigned short* video_memory = (unsigned short*)0xB8000;
-
-    const char* str = "Hello Arch Linux! My kernel is alive.\n";
-    const char* newstring = "And this is a new line.\n";
-    const char* newline = "Ow look, a new line.\n";
+	const char* kernel_message = "I/O Driver initialized!\t Type something \n";
+	ter = Terminal();
 /*
     for (int i = 0; i < 83; ++i) {
         // 0x0A is Light Green. 0x00 is Black background.
@@ -63,10 +70,43 @@ extern "C" void kernel_main() {
         video_memory[i] = 'a' | (0x0A << 8); //(unsigned short)str[i] | (0x0A << 8);
     }
 */
-    Terminal ter;
+    
     ter.clear_scr();
-    ter.write_text(str);
-    ter.write_text(newstring);
-    ter.write_text(newline);
-    while(1); // Never let the kernel end
+    ter.write_text(kernel_message);
+    while(1) {
+	keyboard_driver_write();
+	
+    }
+
 }
+
+
+unsigned char keyboard_map[128] = {0,  27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b','\t','q', 'w', 'e', 'r','t', 'y', 'u', 'i', 'o', 'p', '[',']','\n', 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0, '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, '*', 0, ' ', 0};	
+
+
+
+void keyboard_driver_write(){
+
+
+	if(inb(KEYBOARD_STATUS_PORT) & 0x01){
+		uint8_t scanned_code = inb(KEYBOARD_DATA_PORT);
+		if (!(scanned_code & 0x80)){
+			ter.put_char(keyboard_map[scanned_code]);
+		}	
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
