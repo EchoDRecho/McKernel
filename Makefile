@@ -11,11 +11,11 @@ kernel.o: kernel.cpp
 boot.o: boot.s
 	$(AS) -felf32 boot.s -o boot.o
 
-mykernel.bin: linker.ld boot.o kernel.o
-	$(CC) -m32 -T linker.ld -o mykernel.bin -ffreestanding -O2 -nostdlib boot.o kernel.o -lgcc
+McKernel.bin: linker.ld boot.o kernel.o
+	$(CC) -m32 -T linker.ld -o McKernel.bin -ffreestanding -O2 -nostdlib boot.o kernel.o -lgcc
 
-run: mykernel.bin
-	qemu-system-i386 -kernel mykernel.bin
+run: McKernel.bin
+	qemu-system-i386 -kernel McKernel.bin
 
 clean:
-	rm -f *.o mykernel.bin
+	rm -f *.o McKernal.bin
